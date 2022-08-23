@@ -1,0 +1,30 @@
+#Show valoper address: 
+strided keys show $WALLET_NAME --bech val -a
+
+
+#Делегирование себе:
+strided tx staking delegate <VALOPER_ADDRESS> 40000000ustrd --from $WALLET_NAME --chain-id STRIDE-TESTNET-4
+
+
+#Логи:
+journalctl -u strided -f -o cat
+
+
+#IBC transfer
+strided tx ibc-transfer transfer transfer channel-0  <WALLET_ADDRESS> 1000000ustrd --chain-id STRIDE-TESTNET-4 --from $WALLET_NAME --fees 3000ustrd
+
+
+#Delegate (liquid stake):
+strided tx stakeibc liquid-stake 4000000 uatom --from <WALLET_ADDRESS> --chain-id STRIDE-TESTNET-4
+
+
+#Redeem: 
+strided tx stakeibc redeem-stake 4000000 GAIA <COSMOS_WALLET_ADDRESS> --chain-id $CHAIN --from $WALLET_ADDRESS
+
+
+#Проверка (isClaimable=true тогда claim):
+strided q records list-user-redemption-record --limit 10000 --output json | jq  '.UserRedemptionRecord | map(select(.sender == "<WALLET_ADDRESS>"))'
+
+
+#CLAIM:
+strided tx stakeibc claim-undelegated-tokens GAIA <epochNumber> <WALLET_ADDRESS> --chain-id STRIDE-TESTNET-4 --from <WALLET_ADDRESS> -y
